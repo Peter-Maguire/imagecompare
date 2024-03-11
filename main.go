@@ -78,8 +78,8 @@ func runLoop(client mqtt.Client) {
 		if state == "offline" {
 			client.Publish("imagecompare/washingmachine/availability", 0, false, "offline")
 		} else {
-			client.Publish("imagecompare/washingmachine/availability", 0, false, "online")
 			client.Publish("imagecompare/washingmachine/state", 0, false, state)
+			client.Publish("imagecompare/washingmachine/availability", 0, false, "online")
 		}
 		<-ticker.C
 	}
