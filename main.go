@@ -63,7 +63,6 @@ func main() {
 	err := token.Error()
 	fmt.Println(err)
 	token.Wait()
-	client.Publish("homeassistant/binary_sensor/washingmachine/running/config", 0, false, deviceConfig)
 	fmt.Println("Starting loop")
 	go runLoop(client)
 	forever := make(chan bool)
@@ -75,6 +74,8 @@ func runLoop(client mqtt.Client) {
 	for {
 		state := isWashingOn()
 		fmt.Println(state)
+		client.Publish("homeassistant/binary_sensor/washingmachine/running/config", 0, false, deviceConfig)
+
 		if state == "offline" {
 			client.Publish("imagecompare/washingmachine/availability", 0, false, "offline")
 		} else {
