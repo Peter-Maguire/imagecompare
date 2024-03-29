@@ -71,16 +71,26 @@ func main() {
 
 func runLoop(client mqtt.Client) {
 	ticker := time.NewTicker(1 * time.Minute)
+	times := 0
+	lastState := ""
 	for {
 		state := isWashingOn()
-		fmt.Println(state)
 		client.Publish("homeassistant/binary_sensor/washingmachine/running/config", 0, false, deviceConfig)
 
-		if state == "offline" {
-			client.Publish("imagecompare/washingmachine/availability", 0, false, "offline")
+		if lastState == state {
+			times++
 		} else {
-			client.Publish("imagecompare/washingmachine/state", 0, false, state)
-			client.Publish("imagecompare/washingmachine/availability", 0, false, "online")
+			lastState = state
+			times = 1
+		}
+
+		if times > 3 {
+			if state == "offline" {
+				client.Publish("imagecompare/washingmachine/availability", 0, false, "offline")
+			} else {
+				client.Publish("imagecompare/washingmachine/state", 0, false, state)
+				client.Publish("imagecompare/washingmachine/availability", 0, false, "online")
+			}
 		}
 		<-ticker.C
 	}
